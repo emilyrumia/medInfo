@@ -1,13 +1,14 @@
 import lightgbm as lgb
 import numpy as np
 import random
+import pickle
+import os 
 
 from scipy.spatial.distance import cosine
 from gensim.models import LsiModel
 from gensim.corpora import Dictionary
 from collections import defaultdict
-import pickle
-import os 
+
 
 # Sumber = tutorial_ltr_lambdamart_lightgbm.ipynb 
 # (https://colab.research.google.com/drive/1zsmcwN5fNBrVQzvE1YPEn8gJQIHXL8wa?usp=sharing)
@@ -41,29 +42,6 @@ class Letor :
     val_q_docs_rel = defaultdict(lambda: defaultdict(lambda: 0))
     val_group_qid_count = []
     val_dataset = []
-    
-    def __init__(self):
-
-        # Steps LETOR:
-
-        # 1. Persiapkan data yang akan dilakukan re-ranking
-        self.process_document()
-        self.process_query()
-        self.grouping_by_q_id()
-        self.grouping_qid_count()
-
-        # Validation set
-        self.process_val_query()
-        self.grouping_val_by_q_id()
-        self.grouping_val_qid_count()
-
-        # 2. Membuat LSI/LSA Model
-        self.build_model_lsi()
-
-        # 3. Train LightGBM LambdaMART Model
-        self.train()
-
-        # 4. Melakukan Prediksi (dipanggil saat dibutuhkan)
 
     def process_document(self):
         """
@@ -72,7 +50,7 @@ class Letor :
 
         self.documents = defaultdict(lambda: defaultdict(lambda: 0)) 
 
-        with open("qrels-folder/train_docs.txt") as file:
+        with open(os.path.dirname(__file__) +"/nfcorpus/train.docs") as file:
             for line in file:
                 values = line.split()
                 if values:  # jika list tidak empty
@@ -89,7 +67,7 @@ class Letor :
 
         self.queries = defaultdict(lambda: defaultdict(lambda: 0)) 
 
-        with open("qrels-folder/train_queries.txt",encoding="utf-8") as file:
+        with open(os.path.dirname(__file__) +"/nfcorpus/train.vid-desc.queries", encoding='utf-8') as file:
             for line in file:
                 values = line.split()
                 if values:  # jika list tidak empty
@@ -104,20 +82,16 @@ class Letor :
         Setiap query ID memiliki daftar pasangan document ID dan relevansi.
         """
 
-        self.q_docs_rel = defaultdict(lambda: defaultdict(lambda: 0))  
+        self.q_docs_rel = defaultdict(lambda: defaultdict(lambda: 0))
 
-        with open("qrels-folder/train_qrels.txt") as file:
+        with open(os.path.dirname(__file__) +"/nfcorpus/train.3-2-1.qrel") as file:
             for line in file:
-                values = line.split()
-                if values:  # jika list tidak empty
-                    q_id = values[0]
-                    doc_id = values[1]
-                    rel = values[2]
-                    if (q_id in self.queries) and (doc_id in self.documents):
-                        if q_id not in self.q_docs_rel:
-                            self.q_docs_rel[q_id] = []
+                q_id, _, doc_id, rel = line.split("\t")
+                if (q_id in self.queries) and (doc_id in self.documents):
+                    if q_id not in self.q_docs_rel:
+                        self.q_docs_rel[q_id] = []
                     self.q_docs_rel[q_id].append((doc_id, int(rel)))
-    
+
         print("done grouping by qid")
 
     def grouping_qid_count(self):
@@ -149,24 +123,24 @@ class Letor :
   
         print("done build model lsi")
 
-    def vector_rep(self, text):
+    def vector_rep(self, text, model):
         """
         Menghasilkan representasi vektor untuk teks yang diberikan menggunakan sebuah model topik.
         """
 
         self.dictionary = Dictionary()
 
-        rep = [topic_value for (_, topic_value) in self.model[self.dictionary.doc2bow(text)]]
+        rep = [topic_value for (_, topic_value) in model[self.dictionary.doc2bow(text)]]
         return rep if len(rep) == self.NUM_LATENT_TOPICS else [0.] * self.NUM_LATENT_TOPICS
 
-    def features(self, query, doc):
+    def features(self, query, doc, model):
         """
         Concat(vector(query), vector(document)) + informasi lain
         informasi lain -> cosine distance & jaccard similarity antara query & doc.
         """
 
-        v_q = self.vector_rep(query)
-        v_d = self.vector_rep(doc)
+        v_q = self.vector_rep(query, model)
+        v_d = self.vector_rep(doc, model)
         q = set(query)
         d = set(doc)
         cosine_dist = cosine(v_q, v_d)
@@ -183,7 +157,7 @@ class Letor :
         Y = []
         
         for (query, doc, rel) in self.dataset:
-            X.append(self.features(query, doc))
+            X.append(self.features(query, doc, self.model))
             Y.append(rel)
 
         X = np.array(X)
@@ -216,18 +190,18 @@ class Letor :
 
             print("done training model")
 
-    def predict_rank(self, query, docs):
+    def predict_rank(self, query, docs, model, ranker):
         """
         Predict Ranking for Unseen Q-D Pairs.
         """
 
         X_unseen = []
         for doc_id, doc in docs:
-            X_unseen.append(self.features(query.split(), doc.split()))
+            X_unseen.append(self.features(query.split(), doc.split(), model))
 
         X_unseen = np.array(X_unseen)
 
-        scores = self.ranker.predict(X_unseen)
+        scores = ranker.predict(X_unseen)
 
         did_scores = [x for x in zip([did for (did, _) in docs], scores)]
         sorted_did_scores = sorted(did_scores, key=lambda tup: tup[1], reverse=True)
@@ -301,30 +275,59 @@ class Letor :
         Y = []
 
         for (query, doc, rel) in self.val_dataset:
-            X.append(self.features(query, doc))
+            X.append(self.features(query, doc, self.model))
             Y.append(rel)
 
         X = np.array(X)
         Y = np.array(Y)
 
         return X, Y
+    
+    # Keperluan model dan ranker
 
-    def save_model(model, modelName):
-        current_filename = os.path.dirname(__file__) +'/result/'+modelName+'.pkl'
+    def save_model(self):
+        current_filename = os.path.dirname(__file__) +'/letor/model.pkl'
         with open(current_filename, 'wb') as f:
-            pickle.dump([model], f)
+            pickle.dump([self.model], f)
 
-    def load_model(modelName):
-        current_filename = os.path.dirname(__file__) +'/result/'+modelName+'.pkl'
+    def load_model(self):
+        current_filename = os.path.dirname(__file__) +'/letor/lsi_model.pkl'
         with open(current_filename, 'rb') as f:
             return pickle.load(f)
 
-    def save_lgb_ranker(lgb_ranker, modelName):
-        current_filename = os.path.dirname(__file__) +'/result/lgb_ranker_'+modelName+'.pkl'
+    def save_ranker(self):
+        current_filename = os.path.dirname(__file__) +'/letor/ranker.pkl'
         with open(current_filename, 'wb') as f:
-            pickle.dump([lgb_ranker], f)
+            pickle.dump([self.ranker], f)
 
-    def load_lgb_ranker(modelName):
-        current_filename = os.path.dirname(__file__) +'/result/lgb_ranker_'+modelName+'.pkl'
+    def load_ranker(self):
+        current_filename = os.path.dirname(__file__) +'/letor/lgb_ranker_lsi_model.pkl'
         with open(current_filename, 'rb') as f:
             return pickle.load(f)
+        
+if __name__ == "__main__":
+   
+    # Steps LETOR:
+
+    letor = Letor()
+
+    # 1. Persiapkan data yang akan dilakukan re-ranking
+    letor.process_document()
+    letor.process_query()
+    letor.grouping_by_q_id()
+    letor.grouping_qid_count()
+
+    # Validation set
+    # letor.process_val_query()
+    # letor.grouping_val_by_q_id()
+    # letor.grouping_val_qid_count()
+
+    # 2. Membuat LSI/LSA Model
+    letor.build_model_lsi()
+    letor.save_model()
+
+    # 3. Train LightGBM LambdaMART Model
+    letor.train()
+    letor.save_ranker()
+
+    # 4. Melakukan Prediksi (dipanggil saat dibutuhkan)

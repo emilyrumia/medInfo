@@ -49,8 +49,8 @@ class InvertedIndex:
         directory (str): directory dimana file index berada
         """
 
-        self.index_file_path = os.path.join(directory, index_name+'.index')
-        self.metadata_file_path = os.path.join(directory, index_name+'.dict')
+        self.index_file_path = os.path.join(directory, os.path.dirname(__file__) +"/index/"+index_name+'.index')
+        self.metadata_file_path = os.path.join(directory, os.path.dirname(__file__) +"/index/"+index_name+'.dict')
 
         self.postings_encoding = postings_encoding
         self.directory = directory

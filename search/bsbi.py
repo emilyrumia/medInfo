@@ -47,17 +47,17 @@ class BSBIIndex:
     def save(self):
         """Menyimpan doc_id_map and term_id_map ke output directory via pickle"""
 
-        with open(os.path.join(self.output_dir, 'terms.dict'), 'wb') as f:
+        with open(os.path.join(self.output_dir,os.path.dirname(__file__)+  '/index/terms.dict'), 'wb') as f:
             pickle.dump(self.term_id_map, f)
-        with open(os.path.join(self.output_dir, 'docs.dict'), 'wb') as f:
+        with open(os.path.join(self.output_dir,os.path.dirname(__file__)+ '/index/docs.dict'), 'wb') as f:
             pickle.dump(self.doc_id_map, f)
 
     def load(self):
         """Memuat doc_id_map and term_id_map dari output directory"""
 
-        with open(os.path.join(self.output_dir, 'terms.dict'), 'rb') as f:
+        with open(os.path.join(self.output_dir, os.path.dirname(__file__)+ '/index/terms.dict'), 'rb') as f:
             self.term_id_map = pickle.load(f)
-        with open(os.path.join(self.output_dir, 'docs.dict'), 'rb') as f:
+        with open(os.path.join(self.output_dir, os.path.dirname(__file__)+ '/index/docs.dict'), 'rb') as f:
             self.doc_id_map = pickle.load(f)
         with InvertedIndexReader(self.index_name, self.postings_encoding, self.output_dir) as merged_index:
             self.doc_length = merged_index.doc_length
@@ -130,7 +130,7 @@ class BSBIIndex:
 
         for filename in next(os.walk(path))[2]:
             # Sumber: https://www.geeksforgeeks.org/python-os-path-join-method/ 
-            doc_path = f'./{os.path.join(path, filename)}'
+            doc_path = os.path.join(path, filename)
             doc_id = self.doc_id_map[doc_path]
             with open(doc_path, "r") as f:
                 for word in f:
@@ -395,6 +395,7 @@ class BSBIIndex:
         di setiap block dan menyimpannya ke index yang baru.
         """
         # loop untuk setiap sub-directory di dalam folder collection (setiap block)
+        print(self.data_dir)
         for block_dir_relative in tqdm(sorted(next(os.walk(self.data_dir))[1])):
             td_pairs = self.parsing_block(block_dir_relative)
             index_id = 'intermediate_index_'+block_dir_relative
@@ -414,7 +415,8 @@ class BSBIIndex:
 
 if __name__ == "__main__":
 
-    BSBI_instance = BSBIIndex(data_dir='collections',
+    BSBI_instance = BSBIIndex(data_dir=os.path.dirname(__file__) + "/collections",
                               postings_encoding=VBEPostings,
-                              output_dir='index')
+                              output_dir=os.path.dirname(__file__) + "/index")
     BSBI_instance.do_indexing()  # memulai indexing!
+    
