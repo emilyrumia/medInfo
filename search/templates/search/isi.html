@@ -1,0 +1,38 @@
+{% extends 'search/base.html' %}
+
+{% block meta %}
+    <title>{{ doc_id }}</title>
+{% endblock meta %}
+
+{% block content %}
+<nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color: rgba(255, 255, 255, 0.7); z-index: 1000;">
+    <div class="container mt-4">
+        <!-- Brand/logo -->
+        <a class="navbar-brand" href="#" style="color: black;">medInfo</a>
+
+        <!-- Navbar links -->
+        <div class="collapse navbar-collapse justify-content-center" id="collapsibleNavbar">
+            <form class="form-inline" style="width: 600px;" method="GET" action="{% url 'search:index' %}">
+                <div class="input-group">
+                    <input name="search-bar" id="search-bar" class="form-control rounded-pill" type="search" placeholder="Search" aria-label="Search" value="{{ query|default_if_none:'' }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-success rounded-pill" type="submit">
+                            <i class="fa fa-search" style="font-size:24px"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<!-- contoh collection 0/12.txt -->
+<div class="container" style="margin-top: 120px;">
+
+
+    <h2 style="color: green;">Collection 0: 12.txt</h2>
+    <br>
+    <p>Tenggelam karena cairan di paru-paru yang terjadi tidak selama perendaman dalam air, tetapi hingga 24 jam setelah berenang atau mandi, mendefinisikan tenggelam sekunder, kata Dr. Fisher. Jika anak menghirup air ke dalam paru-paru, pita suara bisa kejang. Tenggelam didefinisikan 'kering' karena terjadi di luar air..</p>
+</div>
+
+{% endblock content %}

@@ -134,26 +134,3 @@ def merge_and_sort_posts_and_tfs(posts_tfs1, posts_tfs2):
         index_2 += 1
 
     return merged_sorted_list
-
-
-if __name__ == '__main__':
-
-    doc = ["halo", "semua", "selamat", "pagi", "semua"]
-    term_id_map = IdMap()
-
-    assert [term_id_map[term]
-            for term in doc] == [0, 1, 2, 3, 1], "term_id salah"
-    assert term_id_map[1] == "semua", "term_id salah"
-    assert term_id_map[0] == "halo", "term_id salah"
-    assert term_id_map["selamat"] == 2, "term_id salah"
-    assert term_id_map["pagi"] == 3, "term_id salah"
-
-    docs = ["/collection/0/data0.txt",
-            "/collection/0/data10.txt",
-            "/collection/1/data53.txt"]
-    doc_id_map = IdMap()
-    assert [doc_id_map[docname]
-            for docname in docs] == [0, 1, 2], "docs_id salah"
-
-    assert merge_and_sort_posts_and_tfs([(1, 34), (3, 2), (4, 23)],
-                                        [(1, 11), (2, 4), (4, 3), (6, 13)]) == [(1, 45), (2, 4), (3, 2), (4, 26), (6, 13)], "merge_and_sort_posts_and_tfs salah"

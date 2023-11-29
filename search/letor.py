@@ -291,7 +291,7 @@ class Letor :
             pickle.dump([self.model], f)
 
     def load_model(self):
-        current_filename = os.path.dirname(__file__) +'/letor/lsi_model.pkl'
+        current_filename = os.path.dirname(__file__) +'/letor/model.pkl'
         with open(current_filename, 'rb') as f:
             return pickle.load(f)
 
@@ -301,7 +301,7 @@ class Letor :
             pickle.dump([self.ranker], f)
 
     def load_ranker(self):
-        current_filename = os.path.dirname(__file__) +'/letor/lgb_ranker_lsi_model.pkl'
+        current_filename = os.path.dirname(__file__) +'/letor/ranker.pkl'
         with open(current_filename, 'rb') as f:
             return pickle.load(f)
         

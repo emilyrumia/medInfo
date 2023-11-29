@@ -1,10 +1,10 @@
 import os
 import math
-from bsbi import BSBIIndex
-from compression import VBEPostings
+from .bsbi import BSBIIndex
+from .compression import VBEPostings
+from .letor import Letor
 from collections import defaultdict
 from tqdm import tqdm
-from letor import Letor
 
 
 # >>>>> 3 IR metrics: RBP p = 0.8, DCG, dan AP

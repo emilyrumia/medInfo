@@ -5,9 +5,9 @@ import heapq
 import math
 import re
 
-from index import InvertedIndexReader, InvertedIndexWriter
-from util import IdMap, merge_and_sort_posts_and_tfs
-from compression import VBEPostings
+from .index import InvertedIndexReader, InvertedIndexWriter
+from .compression import VBEPostings
+from .util import IdMap, merge_and_sort_posts_and_tfs
 from tqdm import tqdm
 from collections import defaultdict
 from mpstemmer import MPStemmer
@@ -46,19 +46,44 @@ class BSBIIndex:
 
     def save(self):
         """Menyimpan doc_id_map and term_id_map ke output directory via pickle"""
-
+        # terms_file_path = os.path.join(self.output_dir, '/terms.dict')
+        # docs_file_path = os.path.join(self.output_dir, '/docs.dict')
+        # with open(os.path.join(self.output_dir,os.path.dirname(__file__)+  '/index/terms.dict'), 'wb') as f:
+        # with open(terms_file_path, 'wb') as f:
+        # with open(os.path.join(self.output_dir, 'terms.dict'), 'wb') as f:
+        #     pickle.dump(self.term_id_map, f)
+        # with open(os.path.join(self.output_dir,os.path.dirname(__file__)+ '/index/docs.dict'), 'wb') as f:
+        # with open(docs_file_path, 'wb') as f:
+        # with open(os.path.join(self.output_dir, 'docs.dict'), 'wb') as f:
+        #     pickle.dump(self.doc_id_map, f)
         with open(os.path.join(self.output_dir,os.path.dirname(__file__)+  '/index/terms.dict'), 'wb') as f:
             pickle.dump(self.term_id_map, f)
         with open(os.path.join(self.output_dir,os.path.dirname(__file__)+ '/index/docs.dict'), 'wb') as f:
             pickle.dump(self.doc_id_map, f)
+        # with open(os.path.join(self.output_dir, 'terms.dict'), 'wb') as f:
+        #     pickle.dump(self.term_id_map, f)
+        # with open(os.path.join(self.output_dir, 'docs.dict'), 'wb') as f:
+        #     pickle.dump(self.doc_id_map, f)
 
     def load(self):
+        # terms_file_path = self.output_dir + '/terms.dict'
+        # docs_file_path = self.output_dir + '/docs.dict'
         """Memuat doc_id_map and term_id_map dari output directory"""
-
+        # with open(os.path.join(self.output_dir, os.path.dirname(__file__)+ '/index/terms.dict'), 'rb') as f:
+        # with open(terms_file_path, 'rb') as f:
+        # with open(os.path.join(self.output_dir, 'terms.dict'), 'rb') as f:
+        #     self.term_id_map = pickle.load(f)
+        # with open(os.path.join(self.output_dir, os.path.dirname(__file__)+ '/index/docs.dict'), 'rb') as f:
+        # with open(os.path.join(self.output_dir, 'docs.dict'), 'rb') as f:
+        #     self.doc_id_map = pickle.load(f)
         with open(os.path.join(self.output_dir, os.path.dirname(__file__)+ '/index/terms.dict'), 'rb') as f:
             self.term_id_map = pickle.load(f)
         with open(os.path.join(self.output_dir, os.path.dirname(__file__)+ '/index/docs.dict'), 'rb') as f:
             self.doc_id_map = pickle.load(f)
+        # with open(os.path.join(self.output_dir, 'terms.dict'), 'rb') as f:
+        #     self.term_id_map = pickle.load(f)
+        # with open(os.path.join(self.output_dir, 'docs.dict'), 'rb') as f:
+        #     self.doc_id_map = pickle.load(f)
         with InvertedIndexReader(self.index_name, self.postings_encoding, self.output_dir) as merged_index:
             self.doc_length = merged_index.doc_length
             self.postings_dict = merged_index.postings_dict
@@ -418,5 +443,5 @@ if __name__ == "__main__":
     BSBI_instance = BSBIIndex(data_dir=os.path.dirname(__file__) + "/collections",
                               postings_encoding=VBEPostings,
                               output_dir=os.path.dirname(__file__) + "/index")
-    BSBI_instance.do_indexing()  # memulai indexing!
+    BSBI_instance.do_indexing() # memulai indexing!
     
