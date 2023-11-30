@@ -5,5 +5,5 @@ app_name = 'search'
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('isi/', views.isi, name="isi")
+    path('isi/<str:doc>/', views.isi, name="isi")
 ]

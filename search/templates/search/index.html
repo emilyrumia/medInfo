@@ -64,17 +64,22 @@
 <!-- list hasil result nya -->
 <div class="container" style="margin-top: 130px;">
     <div class="text-right text-muted" style="margin-left: 100px;">
-        About 12.270.000.000 results (0,29 seconds)
+        About {{ sumDocs }} result{% if sumDocs != 1 %}s{% endif %} ({{ totalTime }} seconds)
     </div>
     <br>
-    <a href="">
+
+    {% for doc, content in result.items %}
+    <a href="{% url 'search:isi' doc %}" style="text-decoration: none;">
         <div class="card rounded shadow mx-auto" style="width: 1000px;">
             <div class="card-body">
-                <h3 style="color: green;">Collection 0: 12.txt</h3>
-                <p>Sneakpeak isi</p>
+                <h3 style="color: green;">{{ doc }}</h3>
+                <p>{{ content|truncatechars:300 }}</p>
             </div>
         </div>
     </a>
+    <br>
+    {% endfor %}
+
 </div>
 
 {% endif %} 

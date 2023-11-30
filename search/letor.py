@@ -117,7 +117,6 @@ class Letor :
         """
         Membentuk bag-of-words corpus, dan kemudian Latent Semantic Indexing/Analysis (LSI/A) model.
         """
-
         bow_corpus = [self.dictionary.doc2bow(doc, allow_update = True) for doc in self.documents.values()]
         self.model = LsiModel(bow_corpus, num_topics = self.NUM_LATENT_TOPICS) # 200 latent topics
   
@@ -129,6 +128,9 @@ class Letor :
         """
 
         self.dictionary = Dictionary()
+
+        print("mau test")
+        print(model[self.dictionary.doc2bow(text)])
 
         rep = [topic_value for (_, topic_value) in model[self.dictionary.doc2bow(text)]]
         return rep if len(rep) == self.NUM_LATENT_TOPICS else [0.] * self.NUM_LATENT_TOPICS
@@ -291,7 +293,8 @@ class Letor :
             pickle.dump([self.model], f)
 
     def load_model(self):
-        current_filename = os.path.dirname(__file__) +'/letor/model.pkl'
+        # current_filename = os.path.dirname(__file__) +'/letor/model.pkl'
+        current_filename = os.path.dirname(__file__) +'/letor/lsi_model.pkl'
         with open(current_filename, 'rb') as f:
             return pickle.load(f)
 
@@ -301,7 +304,8 @@ class Letor :
             pickle.dump([self.ranker], f)
 
     def load_ranker(self):
-        current_filename = os.path.dirname(__file__) +'/letor/ranker.pkl'
+        # current_filename = os.path.dirname(__file__) +'/letor/ranker.pkl'
+        current_filename = os.path.dirname(__file__) +'/letor/lgb_ranker_lsi_model.pkl'
         with open(current_filename, 'rb') as f:
             return pickle.load(f)
         

@@ -26,6 +26,7 @@ def predict_rank(query, docs, model, ranker):
     # bentuk ke format numpy array
     X_unseen = []
     for doc_id, doc in docs:
+        print(doc.split())
         X_unseen.append(features(query.split(), doc.split(), model))
 
     X_unseen = np.array(X_unseen)
@@ -39,7 +40,7 @@ def predict_rank(query, docs, model, ranker):
     return sorted_did_scores
 
 
-def hasil(k=100, query=''):
+def hasil(k=10, query=''):
     print("test")
 
     # BSBIIndex hanya sebagai abstraksi untuk index tersebut
@@ -47,6 +48,8 @@ def hasil(k=100, query=''):
                               postings_encoding=VBEPostings,
                               output_dir=os.path.dirname(__file__) + "/index")
     print("sampe sini")
+    BSBI_instance.load()
+    print("lewat akhirnya")
 
     # Persiapan Letor
     letor = Letor()
@@ -58,9 +61,12 @@ def hasil(k=100, query=''):
     # BM25
     docs = []
     for (score, doc) in BSBI_instance.retrieve_bm25(query, k=k):
-        with open(doc, encoding='utf-8') as file:
+        print(score, doc)
+        path_doc = os.path.dirname(__file__) + doc.lstrip('.')
+        with open(path_doc, encoding='utf-8') as file:
             for line in file:
                 docs.append((doc, line))
+                print((doc, line))
 
     print("test 2")
 
@@ -68,4 +74,3 @@ def hasil(k=100, query=''):
     sorted_did_scores  = letor.predict_rank(query, docs, model, ranker)
 
     return sorted_did_scores
-  
