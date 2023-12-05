@@ -1,7 +1,7 @@
 {% extends 'search/base.html' %}
 
 {% block meta %}
-    <title>medInfo</title>
+    <title>KnowInfo</title>
 {% endblock meta %}
 
 {% block content %}
@@ -9,10 +9,21 @@
 <div class="container">
     <div class="row justify-content-center align-items-center vh-100">
         <div class="col-md-6 text-center">
-            <span style="color: green; font-size: 70px;">med</span>
+            <span style="color: green; font-size: 70px;">Know</span>
             <span style="color: black; font-size: 70px;">Info</span>
             <form method="GET" action="{% url 'search:index' %}" class="d-flex mt-4">
-                <input  name="search-bar" id="search-bar" class="form-control rounded-pill me-2" type="search" placeholder="Search" aria-label="Search"  value="{{ query|default_if_none:'' }}">
+                <div class="col-8 me-2">
+                    <input name="search-bar" id="search-bar" class="form-control rounded-pill me-2" type="search" placeholder="Search" aria-label="Search" value="{{ query|default_if_none:'' }}">
+                </div>
+                <div class="col-2 me-2">
+                    <select name="num_results" class="form-select rounded-pill me-2">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
                 <button class="btn btn-outline-success rounded-pill" >
                     <i class="fa fa-search" style="font-size:24px"></i>
                 </button>
@@ -24,10 +35,21 @@
 <div class="container">
     <div class="row justify-content-center align-items-center vh-100">
         <div class="col-md-6 text-center">
-            <span style="color: green; font-size: 70px;">med</span>
+            <span style="color: green; font-size: 70px;">Know</span>
             <span style="color: black; font-size: 70px;">Info</span>
             <form method="GET" action="{% url 'search:index' %}" class="d-flex mt-4">
-                <input  name="search-bar" id="search-bar" class="form-control rounded-pill me-2" type="search" placeholder="Search" aria-label="Search"  value="{{ query|default_if_none:'' }}">
+                <div class="col-8 me-2">
+                    <input name="search-bar" id="search-bar" class="form-control rounded-pill me-2" type="search" placeholder="Search" aria-label="Search" value="{{ query|default_if_none:'' }}">
+                </div>
+                <div class="col-2 me-2">
+                    <select name="num_results" class="form-select rounded-pill me-2">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="20">20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
                 <button class="btn btn-outline-success rounded-pill" >
                     <i class="fa fa-search" style="font-size:24px"></i>
                 </button>
@@ -41,7 +63,7 @@
     <div class="container mt-4">
         <!-- Brand/logo -->
         <a class="navbar-brand" href="{% url 'search:index' %}">
-            <span style="color: green; font-size: 40px;">med</span>
+            <span style="color: green; font-size: 40px;">Know</span>
             <span style="color: black; font-size: 40px;">Info</span>
         </a>
 
@@ -49,7 +71,18 @@
         <div class="collapse navbar-collapse justify-content-center" id="collapsibleNavbar">
             <form class="form-inline" style="width: 600px;" method="GET" action="{% url 'search:index' %}">
                 <div class="input-group">
-                    <input name="search-bar" id="search-bar" class="form-control rounded-pill" type="search" placeholder="Search" aria-label="Search" value="{{ query|default_if_none:'' }}">
+                    <div class="col-8 me-2">
+                        <input name="search-bar" id="search-bar" class="form-control rounded-pill me-2" type="search" placeholder="Search" aria-label="Search" value="{{ query|default_if_none:'' }}">
+                    </div>
+                    <div class="col-2 me-2">
+                        <select name="num_results" class="form-select rounded-pill me-2">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                    </div>
                     <div class="input-group-append">
                         <button class="btn btn-outline-success rounded-pill" type="submit">
                             <i class="fa fa-search" style="font-size:24px"></i>

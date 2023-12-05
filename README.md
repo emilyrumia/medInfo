@@ -1,4 +1,4 @@
-# medInfo
+# KnowInfo
 
 Tugas Pemrograman 4
  

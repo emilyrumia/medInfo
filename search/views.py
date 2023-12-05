@@ -1,21 +1,17 @@
-from django.shortcuts import render
-import sys
 import os
 import re
-import pickle
-
-# from .method import hasil
-from .bsbi import BSBIIndex
-from .letor import Letor
-from .compression import VBEPostings
 from datetime import datetime
+
+from django.shortcuts import render
+
+from .letor import rerank_search_results
 
 
 def index(request):
-
     start_time = datetime.now()
-    totalTime=None
+    totalTime = None
     sumDocs = None
+    num_results = request.GET.get('num_results', 10)  # Default adalah 10
 
     query = request.GET.get('search-bar')
 
@@ -26,25 +22,18 @@ def index(request):
             'flag': 0
         }
         return render(request, 'search/index.html', context)
-    
-    else:
 
-        sys.path.append(os.path.join(os.path.dirname(__file__)))
-        BSBI_instance = BSBIIndex(data_dir=os.path.dirname(__file__) + "/collections",
-                        postings_encoding=VBEPostings,
-                        output_dir=os.path.dirname(__file__) + "/index")
- 
-        BSBI_instance.load()
+    else:
 
         result = {}
 
-# ini yang pake bm25 doang!!!!
+        # ini yang pake bm25 doang!!!!
 
-        sorted_did_scores = BSBI_instance.retrieve_bm25(query, k=10)
+        sorted_did_scores = rerank_search_results(query, int(num_results))
         for (score, doc) in sorted_did_scores:
             print(f"{doc:30} {score:>.3f}")
 
-        if len(sorted_did_scores) == 0:
+        if len(sorted_did_scores) == 0:  # jika tidak ada hasil
 
             totalTime = 0
             sumDocs = 0
@@ -53,37 +42,15 @@ def index(request):
                 'query': query,
                 'flag': 1,
                 'totalTime': totalTime,
-                'sumDocs':sumDocs
+                'sumDocs': sumDocs
             }
 
             return render(request, 'search/index.html', context)
-        
-        else:
 
-            # docs = []
-            # for (score, doc) in sorted_did_scores:
-            #     print(f"{doc:30} {score:>.3f}")
-            #     path_doc = os.path.dirname(__file__) + doc.lstrip('.')
-            #     with open(path_doc, encoding='utf-8') as file:
-            #         for line in file:
-            #             docs.append((doc,line))
-
-            # print(docs)
-
-            # # Persiapan Letor
-            # current_filename = os.path.dirname(__file__) +'/letor/model.pkl'
-            # with open(current_filename, 'rb') as f:
-            #     model = pickle.load(f)
-            # current_filename = os.path.dirname(__file__) +'/letor/ranker.pkl'
-            # with open(current_filename, 'rb') as f:
-            #     ranker = pickle.load(f)
-
-            # letor = Letor()
-            # letor.predict_rank(query, docs, model, ranker)
-
+        else:  # jika ada hasil
 
             for score, doc in sorted_did_scores:
-                path_doc = os.path.dirname(__file__) + doc.lstrip('.')
+                path_doc = os.path.dirname(__file__) + "\\" + doc.lstrip('.')
                 with open(path_doc, encoding='utf-8') as file:
                     for line in file:
                         parts = doc.split('/')
@@ -91,23 +58,22 @@ def index(request):
                         result[collection_info] = line
 
             end_time = datetime.now()
-            totalTime = end_time-start_time
+            totalTime = end_time - start_time
 
             sumDocs = len(result)
 
             context = {
                 'query': query,
                 'flag': 2,
-                'result' : result,
-                'totalTime':totalTime,
-                'sumDocs':sumDocs
+                'result': result,
+                'totalTime': totalTime,
+                'sumDocs': sumDocs
             }
 
             return render(request, 'search/index.html', context)
 
 
 def isi(request, doc):
-
     title = doc
     content = None
     digits = re.findall(r'\d+', doc)
@@ -123,8 +89,8 @@ def isi(request, doc):
     context = {
         'title': title,
         'title1': title1,
-        'title2':title2,
+        'title2': title2,
         'content': content,
     }
-   
+
     return render(request, 'search/isi.html', context)

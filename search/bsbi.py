@@ -7,13 +7,13 @@ import re
 
 from .index import InvertedIndexReader, InvertedIndexWriter
 from .compression import VBEPostings
-from .util import IdMap, merge_and_sort_posts_and_tfs
+from util import IdMap, merge_and_sort_posts_and_tfs
 from tqdm import tqdm
 from collections import defaultdict
 from mpstemmer import MPStemmer
 from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
 from nltk import word_tokenize
-from operator import itemgetter
+
 
 class BSBIIndex:
     """
