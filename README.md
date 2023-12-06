@@ -2,7 +2,7 @@
 
 Tugas Pemrograman 4 - IR
 
-[Link Deployment](http://34.127.14.73:8001/)
+[Link Deployment](http://34.105.89.229:8001/)
  
 ## Anggota Kelompok
 
