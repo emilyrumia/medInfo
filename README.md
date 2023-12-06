@@ -3,6 +3,8 @@
 Tugas Pemrograman 4 - IR
 
 [Link Deployment](http://34.105.89.229:8001/)
+
+Karena file model yang digunakan terlalu besar, maka kami tidak menguploadnya ke github. Untuk file model dapat diunduh di [sini](https://drive.google.com/drive/folders/1DNfkZskujfYG9P5-vlvL-xxfv_YJiJnA). Setelah diunduh, file model dapat diletakkan di folder `/search/letor/`
  
 ## Anggota Kelompok
 
