@@ -1,6 +1,8 @@
 # KnowInfo
 
-Tugas Pemrograman 4
+Tugas Pemrograman 4 - IR
+
+[Link Deployment](http://34.127.14.73:8001/)
  
 ## Anggota Kelompok
 
